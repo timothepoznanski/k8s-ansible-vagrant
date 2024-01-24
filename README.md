@@ -8,17 +8,19 @@ Before you begin, ensure you have installed the following prerequisites on your 
 
 - [Vagrant](https://www.vagrantup.com/)
 - [VirtualBox](https://www.virtualbox.org/)
+- Add you id_rsa and id_rsa.pub key to your ~/.ssh/ windows directory
 
 ## Quick Start
 
 1. **Initializing the Vagrant Environment**:
+   
     Open a PowerShell terminal and execute:
 
     ```powershell
     vagrant up
     ```
 
-2. **SSH Connection to the Admin Node**:
+3. **SSH Connection to the Admin Node**:
     Still in PowerShell, connect to the admin node:
 
     ```powershell
@@ -31,7 +33,7 @@ Before you begin, ensure you have installed the following prerequisites on your 
     sudo su - adminuser
     ```
 
-3. **Cloning the Repository and Preparation**:
+4. **Cloning the Repository and Preparation**:
     Clone the repository and navigate to the project directory:
 
     ```bash
@@ -39,14 +41,14 @@ Before you begin, ensure you have installed the following prerequisites on your 
     cd k8s-ansible-vagrant/
     ```
 
-4. **Executing the Ansible Playbook**:
+5. **Executing the Ansible Playbook**:
     Launch the Ansible playbook to set up the Kubernetes cluster:
 
     ```bash
     ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory -u adminuser roles/main.yaml
     ```
 
-5. **SSH Connection to the Master Node**:
+6. **SSH Connection to the Master Node**:
     Return to PowerShell to connect to the master node:
 
     ```powershell
@@ -59,7 +61,7 @@ Before you begin, ensure you have installed the following prerequisites on your 
     sudo su - adminuser
     ```
 
-6. **Verifying the Cluster Nodes**:
+7. **Verifying the Cluster Nodes**:
     Check the status of the nodes in your Kubernetes cluster:
 
     ```bash
