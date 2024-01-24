@@ -1,0 +1,146 @@
+- name: Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add containerd repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Add Kubernetes GPG key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes repository
+  apt_repository:
+    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+- name: Install containerd
+  apt:
+    name: containerd.io
+    state: present
+
+- name: Install Kubernetes components
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
+
+- name: Configure kubelet
+  lineinfile:
+    path: '/etc/systemd/system/kubelet.service.d/10-kubeadm.conf'
+    line: 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}"'
+    regexp: 'KUBELET_EXTRA_ARGS='
+    insertafter: '\[Service\]'
+    state: present
+  notify:
+    - restart kubelet
+
+- name: Enable IPv4 forwarding
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Load overlay kernel module
+  ansible.builtin.modprobe:
+    name: overlay
+    state: present
+
+- name: Load br_netfilter kernel module
+  ansible.builtin.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Create containerd configuration directory
+  file:
+    path: /etc/containerd
+    state: directory
+
+- name: Get default containerd configuration
+  command: containerd config default
+  register: containerd_config
+
+- name: Save containerd configuration to file
+  copy:
+    content: "{{ containerd_config.stdout_lines | join('\n') }}"
+    dest: /etc/containerd/config.toml
+
+- name: Update SystemdCgroup setting in containerd configuration
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: 'SystemdCgroup = false'
+    replace: 'SystemdCgroup = true'
+
+- name: Restart containerd service
+  systemd:
+    name: containerd
+    state: restarted
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: Disable swap
+  command: swapoff -a
+  when: ansible_swaptotal_mb > 0
+
+- name: Stop apt-daily.timer
+  ansible.builtin.systemd:
+    name: apt-daily.timer
+    state: stopped
+
+- name: Disable apt-daily.timer
+  ansible.builtin.systemd:
+    name: apt-daily.timer
+    enabled: no
+
+- name: Mask apt-daily.service
+  ansible.builtin.systemd:
+    name: apt-daily.service
+    masked: yes
+
+- name: Stop apt-daily-upgrade.timer
+  ansible.builtin.systemd:
+    name: apt-daily-upgrade.timer
+    state: stopped
+
+- name: Disable apt-daily-upgrade.timer
+  ansible.builtin.systemd:
+    name: apt-daily-upgrade.timer
+    enabled: no
+
+- name: Mask apt-daily-upgrade.service
+  ansible.builtin.systemd:
+    name: apt-daily-upgrade.service
+    masked: yes
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes

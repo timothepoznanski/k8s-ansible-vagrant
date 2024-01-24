@@ -1,0 +1,46 @@
+# - name: Check if Kubernetes cluster is already configured
+#   stat:
+#     path: /etc/kubernetes/admin.conf
+#   register: cluster_config
+
+- name: Initialize the Kubernetes cluster using kubeadm
+  shell: >
+    kubeadm init
+    --apiserver-advertise-address="{{ node_ip }}"
+    --apiserver-cert-extra-sans="{{ node_ip }}"
+    --node-name="master"
+    --pod-network-cidr="{{ pod_network_cidr }}"
+    --ignore-preflight-errors=NumCPU,Mem
+  # when: cluster_config.stat.exists == false
+
+- name: Create .kube directory for ansible user
+  file:
+    path: /home/adminuser/.kube
+    state: directory
+    owner: adminuser
+    group: adminuser
+    mode: '0755'
+
+- name: Copy admin.conf to adminuser user's kubeconfig
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/adminuser/.kube/config
+    owner: adminuser
+    group: adminuser
+    mode: '0644'
+    remote_src: yes  # src file is on the remote host
+
+- name: Install Weavenet pod network
+  command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+  become_user: adminuser
+
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Copy join command to local file
+  copy: 
+    content: "{{ join_command.stdout_lines[0] }}"
+    dest: "./join-command"
+  delegate_to: localhost
+

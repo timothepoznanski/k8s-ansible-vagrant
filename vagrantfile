@@ -1,0 +1,117 @@
+# ####################################################################
+# ################### CONFIGURATION VARIABLES ########################
+# ####################################################################
+IMAGE_NAME = "ubuntu/jammy64"       # Image to use
+MEM = 2048                           # Amount of RAM
+CPU = 1                              # Number of processors
+ADMIN_NAME="admin"                   # Admin node name
+MASTER_NAME="master"                 # Master node name
+WORKER_NBR = 2                       # Number of workers node
+NODE_NETWORK_BASE = "192.168.50"     # First three octets of the IP address
+POD_NETWORK = "192.168.100.0/16"     # Private network for inter-pod communication
+
+# Function to add adminuser user with sudo and SSH public key
+def add_admin_user_with_public_key(config, ssh_key_public)
+  config.vm.provision "shell", inline: <<-SHELL
+    # Add adminuser user and grant sudo privileges
+    useradd -m -s /bin/bash adminuser
+    echo 'adminuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+    # Setup SSH for adminuser user
+    mkdir -p /home/adminuser/.ssh
+    echo "#{ssh_key_public}" > /home/adminuser/.ssh/authorized_keys
+    chown -R adminuser:adminuser /home/adminuser/.ssh
+    chmod 700 /home/adminuser/.ssh
+    chmod 600 /home/adminuser/.ssh/authorized_keys
+  SHELL
+end
+
+# Function to configure shell environment
+def configure_shell_environment(config)
+  config.vm.provision "shell", inline: <<-SHELL
+    # Install Vim and set it as the default editor
+    apt-get install -y vim
+    update-alternatives --set editor /usr/bin/vim.basic
+
+    # Update 'll' alias for root and adminuser users
+    for user_home in /root /home/adminuser; do
+      if [ -f "$user_home/.bashrc" ]; then
+        sed -i '/alias ll=/d' "$user_home/.bashrc" # Remove existing ll alias
+        echo "alias ll='ls -lrt'" >> "$user_home/.bashrc" # Add new ll alias
+      fi
+    done
+SHELL
+end
+
+Vagrant.configure("2") do |config|
+    config.ssh.insert_key = false
+
+    # RAM and CPU config
+    config.vm.provider "virtualbox" do |v|
+        v.memory = MEM
+        v.cpus = CPU
+    end
+
+    # Get public and private keys from windows .ssh
+    ssh_key_public = `cat ~/.ssh/id_rsa.pub`.strip
+    ssh_key_private = `cat ~/.ssh/id_rsa`.strip
+
+    # Admin node config
+    config.vm.define ADMIN_NAME do |admin|
+        admin.vm.box = IMAGE_NAME
+        admin.vm.network "private_network", ip: "#{NODE_NETWORK_BASE}.10"
+        admin.vm.hostname = ADMIN_NAME
+
+        # Provision to install ansible
+        admin.vm.provision "shell", inline: <<-SHELL
+          apt-get update
+          apt-get install -y ansible
+        SHELL
+
+        # Add adminuser user with sudo privileges and SSH keys
+        admin.vm.provision "shell", inline: <<-SHELL
+          useradd -m -s /bin/bash adminuser
+          echo '# User rules for adminuser' >> /etc/sudoers.d/90-cloud-init-users
+          echo 'adminuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/90-cloud-init-users
+          echo >> /etc/sudoers.d/90-cloud-init-users
+          mkdir -p /home/adminuser/.ssh
+          echo "#{ssh_key_public}" > /home/adminuser/.ssh/authorized_keys
+          echo "#{ssh_key_private}" > /home/adminuser/.ssh/id_rsa
+		      chown -R adminuser:adminuser /home/adminuser
+          chmod 700 /home/adminuser/.ssh
+          chmod 600 /home/adminuser/.ssh/authorized_keys
+          chmod 600 /home/adminuser/.ssh/id_rsa
+        SHELL
+
+        # Configure shell environment
+        configure_shell_environment(admin)
+    end
+
+    # Master node config
+    config.vm.define MASTER_NAME do |master|
+        master.vm.box = IMAGE_NAME
+        master.vm.network "private_network", ip: "#{NODE_NETWORK_BASE}.11"
+        master.vm.hostname = MASTER_NAME
+
+        # Add adminuser user with public key
+        add_admin_user_with_public_key(master, ssh_key_public)
+
+        # Configure shell environment
+        configure_shell_environment(master)
+    end
+
+    # Worker node config
+    (1..WORKER_NBR).each do |i|
+        config.vm.define "worker-#{i}" do |worker|
+            worker.vm.box = IMAGE_NAME
+            worker.vm.network "private_network", ip: "#{NODE_NETWORK_BASE}.#{i + 11}"
+            worker.vm.hostname = "worker-#{i}"
+
+            # Add adminuser user with public key
+            add_admin_user_with_public_key(worker, ssh_key_public)
+
+            # Configure shell environment
+            configure_shell_environment(worker)
+        end
+    end
+end
