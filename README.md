@@ -1,4 +1,4 @@
-# Kubernetes Cluster Setup with Ansible and Vagrant
+r# Kubernetes Cluster Setup with Ansible and Vagrant
 
 This repository provides a straightforward configuration for a Kubernetes cluster using Ansible and Vagrant. It allows you to quickly launch a multi-node Kubernetes cluster for development and testing purposes.
 
@@ -8,7 +8,7 @@ Before you begin, ensure you have installed the following prerequisites on your 
 
 - [Vagrant](https://www.vagrantup.com/)
 - [VirtualBox](https://www.virtualbox.org/)
-- Add you id_rsa and id_rsa.pub key to your ~/.ssh/ windows directory
+- Add your id_rsa and id_rsa.pub files to your ~/.ssh/ windows directory
 
 ## Quick Start
 
