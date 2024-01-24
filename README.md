@@ -21,6 +21,7 @@ Before you begin, ensure you have installed the following prerequisites on your 
     ```
 
 3. **SSH Connection to the Admin Node**:
+   
     Still in PowerShell, connect to the admin node:
 
     ```powershell
@@ -33,7 +34,8 @@ Before you begin, ensure you have installed the following prerequisites on your 
     sudo su - adminuser
     ```
 
-4. **Cloning the Repository and Preparation**:
+5. **Cloning the Repository and Preparation**:
+   
     Clone the repository and navigate to the project directory:
 
     ```bash
@@ -41,14 +43,16 @@ Before you begin, ensure you have installed the following prerequisites on your 
     cd k8s-ansible-vagrant/
     ```
 
-5. **Executing the Ansible Playbook**:
+7. **Executing the Ansible Playbook**:
+   
     Launch the Ansible playbook to set up the Kubernetes cluster:
 
     ```bash
     ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory -u adminuser roles/main.yaml
     ```
 
-6. **SSH Connection to the Master Node**:
+9. **SSH Connection to the Master Node**:
+    
     Return to PowerShell to connect to the master node:
 
     ```powershell
@@ -61,7 +65,8 @@ Before you begin, ensure you have installed the following prerequisites on your 
     sudo su - adminuser
     ```
 
-7. **Verifying the Cluster Nodes**:
+11. **Verifying the Cluster Nodes**:
+    
     Check the status of the nodes in your Kubernetes cluster:
 
     ```bash
