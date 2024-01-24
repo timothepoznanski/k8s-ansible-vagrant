@@ -1,4 +1,4 @@
-r# Kubernetes Cluster Setup with Ansible and Vagrant
+### Kubernetes Cluster Setup with Ansible and Vagrant
 
 This repository provides a straightforward configuration for a Kubernetes cluster using Ansible and Vagrant. It allows you to quickly launch a multi-node Kubernetes cluster for development and testing purposes.
 
@@ -33,6 +33,8 @@ Before you begin, ensure you have installed the following prerequisites on your 
     ```bash
     sudo su - adminuser
     ```
+
+    Then, load your ssh private key in this powershell session.
 
 5. **Cloning the Repository and Preparation**:
    
