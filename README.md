@@ -14,7 +14,7 @@ Before you begin, ensure you have installed the following prerequisites on your 
 
 1. **Initializing the Vagrant Environment**:
    
-    Open a PowerShell terminal and execute:
+    Open a PowerShell terminal, clone the repository, navigate to the project directory and execute vagrant command:
 
     ```powershell
     vagrant up
