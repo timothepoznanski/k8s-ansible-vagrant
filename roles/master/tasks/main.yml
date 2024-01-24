@@ -1,7 +1,7 @@
-# - name: Check if Kubernetes cluster is already configured
-#   stat:
-#     path: /etc/kubernetes/admin.conf
-#   register: cluster_config
+- name: Check if Kubernetes cluster is already configured
+  stat:
+    path: /etc/kubernetes/admin.conf
+  register: cluster_config
 
 - name: Initialize the Kubernetes cluster using kubeadm
   shell: >
@@ -11,7 +11,7 @@
     --node-name="master"
     --pod-network-cidr="{{ pod_network_cidr }}"
     --ignore-preflight-errors=NumCPU,Mem
-  # when: cluster_config.stat.exists == false
+  when: cluster_config.stat.exists == false
 
 - name: Create .kube directory for ansible user
   file:
