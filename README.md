@@ -1,72 +1,72 @@
 # Kubernetes Cluster Setup with Ansible and Vagrant
 
-Ce dépôt fournit une configuration simple pour un cluster Kubernetes utilisant Ansible et Vagrant. Il vous permet de lancer rapidement un cluster Kubernetes multi-nœuds à des fins de développement et de test.
+This repository provides a straightforward configuration for a Kubernetes cluster using Ansible and Vagrant. It allows you to quickly launch a multi-node Kubernetes cluster for development and testing purposes.
 
-## Prérequis
+## Prerequisites
 
-Avant de commencer, assurez-vous d'avoir installé les prérequis suivants sur votre machine :
+Before you begin, ensure you have installed the following prerequisites on your machine:
 
 - [Vagrant](https://www.vagrantup.com/)
 - [VirtualBox](https://www.virtualbox.org/)
 
-## Démarrage rapide
+## Quick Start
 
-1. **Initialisation de l'environnement Vagrant** :
-    Ouvrez un terminal PowerShell et exécutez :
+1. **Initializing the Vagrant Environment**:
+    Open a PowerShell terminal and execute:
 
     ```powershell
     vagrant up
     ```
 
-2. **Connexion SSH à l'administrateur** :
-    Toujours dans PowerShell, connectez-vous au nœud admin :
+2. **SSH Connection to the Admin Node**:
+    Still in PowerShell, connect to the admin node:
 
     ```powershell
     vagrant ssh admin
     ```
 
-    Ensuite, passez à l'utilisateur admin :
+    Then, switch to the admin user:
 
     ```bash
     sudo su - adminuser
     ```
 
-3. **Clonage du dépôt et préparation** :
-    Clonez le dépôt et accédez au répertoire du projet :
+3. **Cloning the Repository and Preparation**:
+    Clone the repository and navigate to the project directory:
 
     ```bash
     git clone https://github.com/timothepoznanski/k8s-ansible-vagrant.git
     cd k8s-ansible-vagrant/
     ```
 
-4. **Exécution du playbook Ansible** :
-    Lancez le playbook Ansible pour configurer le cluster Kubernetes :
+4. **Executing the Ansible Playbook**:
+    Launch the Ansible playbook to set up the Kubernetes cluster:
 
     ```bash
     ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory -u adminuser roles/main.yaml
     ```
 
-5. **Connexion SSH au nœud master** :
-    Retournez à PowerShell pour vous connecter au nœud master :
+5. **SSH Connection to the Master Node**:
+    Return to PowerShell to connect to the master node:
 
     ```powershell
     vagrant ssh master
     ```
 
-    Passez ensuite à l'utilisateur admin :
+    Then, switch to the admin user:
 
     ```bash
     sudo su - adminuser
     ```
 
-6. **Vérification des nœuds du cluster** :
-    Vérifiez l'état des nœuds dans votre cluster Kubernetes :
+6. **Verifying the Cluster Nodes**:
+    Check the status of the nodes in your Kubernetes cluster:
 
     ```bash
     kubectl get nodes -o wide
     ```
 
-    Vous devriez voir une sortie semblable à :
+    You should see output similar to:
 
     ```
     NAME       STATUS   ROLES           AGE     VERSION   INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
@@ -75,8 +75,6 @@ Avant de commencer, assurez-vous d'avoir installé les prérequis suivants sur vot
     worker-2   Ready    <none>          69s     v1.28.2   192.168.50.13   <none>        Ubuntu 22.04.3 LTS   5.15.0-91-generic   containerd://1.6.27
     ```
 
-## Contribution
+## Contributing
 
-N'hésitez pas à contribuer en ouvrant des issues ou des pull requests. Vos retours et contributions sont grandement appréciés !
-
-
+Feel free to contribute by opening issues or pull requests. Your feedback and contributions are greatly appreciated!
