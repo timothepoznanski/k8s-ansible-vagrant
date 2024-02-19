@@ -8,7 +8,7 @@ Before you begin, ensure you have installed the following prerequisites on your 
 
 - [Vagrant](https://www.vagrantup.com/)
 - [VirtualBox](https://www.virtualbox.org/)
-- Add your id_rsa and id_rsa.pub files to your ~/.ssh/ windows directory
+- Add your id_rsa and id_rsa.pub files to your ~/.ssh/ windows directory. This ssh key will be deployed onto all nodes of the K8S cluster. Use it to connect or use vagrant ssh command.
 
 ## Quick Start
 
