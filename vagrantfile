@@ -1,6 +1,4 @@
-# ####################################################################
-# ################### CONFIGURATION VARIABLES ########################
-# ####################################################################
+### VARIABLES
 IMAGE_NAME = "ubuntu/jammy64"       # Image to use
 MEM = 2048                           # Amount of RAM
 CPU = 1                              # Number of processors
