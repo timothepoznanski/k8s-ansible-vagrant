@@ -50,7 +50,8 @@ Before you begin, ensure you have installed the following prerequisites on your 
     Launch the Ansible playbook to set up the Kubernetes cluster:
 
     ```bash
-    ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory -u adminuser roles/main.yaml
+    ANSIBLE_HOST_KEY_CHECKING=False
+    ansible-playbook -i inventory -u adminuser roles/main.yaml
     ```
 
 9. **SSH Connection to the Master Node**:
